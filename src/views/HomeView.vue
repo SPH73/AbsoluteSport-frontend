@@ -236,7 +236,7 @@ p {
                 rgba(0, 0, 0, 0.5),
                 rgba(0, 0, 0, 0.25)
             ),
-            url('@/assets/home_about_crop.jpg');
+            url('@/assets/home_about_sml.webp');
     }
 }
 
@@ -253,7 +253,7 @@ p {
                 rgba(0, 0, 0, 0.5),
                 rgba(0, 0, 0, 0.25)
             ),
-            url('@/assets/home_about_crop.jpg');
+            url('@/assets/home_about_sml.webp');
     }
 }
 
