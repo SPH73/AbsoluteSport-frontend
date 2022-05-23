@@ -14,14 +14,28 @@
                     <form @submit.prevent="handleSubmit">
                         <div class="grid-inputs">
                             <div class="form-control">
-                                <input type="text" placeholder="Your name" />
+                                <input
+                                    type="text"
+                                    placeholder="Your name"
+                                    v-model="enteredName"
+                                    autocomplete="name"
+                                    required
+                                />
                             </div>
                             <div class="form-control">
-                                <input type="email" placeholder="Your email" />
+                                <input
+                                    type="email"
+                                    placeholder="Your email"
+                                    v-model="enteredEmail"
+                                    autocomplete="email"
+                                    required
+                                />
                             </div>
                             <div class="form-control-textarea">
                                 <textarea
                                     placeholder="How can we help?"
+                                    v-model="enteredMessage"
+                                    required
                                 ></textarea>
                             </div>
                         </div>
@@ -53,11 +67,11 @@ export default {
                 const createdRecord = await table.create(fields);
                 console.log(createdRecord.id);
             };
-            createRecord({
+            createEnquiryRecord({
                 firstName: enteredName.value,
-                type: 'contact',
-                email: email.value,
-                info: enteredMessage,
+                enquiryType: 'contact',
+                email: enteredEmail.value,
+                info: enteredMessage.value,
             });
         };
         return {
