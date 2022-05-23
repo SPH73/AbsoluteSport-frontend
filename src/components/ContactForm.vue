@@ -72,6 +72,7 @@ export default {
                 enquiryType: 'contact',
                 email: enteredEmail.value,
                 info: enteredMessage.value,
+                status: 'new',
             });
         };
         return {
