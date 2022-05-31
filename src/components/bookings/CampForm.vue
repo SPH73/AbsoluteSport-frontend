@@ -43,6 +43,7 @@
                             name="parentName"
                             id="parentName"
                             required
+                            autocomplete="on"
                             v-model.trim.lazy="parentName"
                         />
                     </div>
@@ -55,6 +56,7 @@
                             name="mainContact"
                             id="mainContact"
                             required
+                            autocomplete="tel"
                             v-model.trim.lazy="mainContact"
                         />
                     </div>
@@ -67,6 +69,7 @@
                             name="email"
                             id="email"
                             required
+                            autocomplete="email"
                             v-model.trim.lazy="email"
                         />
                     </div>
@@ -118,10 +121,11 @@
                 <div class="form-control">
                     <input
                         type="text"
-                        name="childName"
-                        id="childName"
+                        name="childSurname"
+                        id="childSurname"
                         required
                         v-model.trim.lazy="childSurname"
+                        autocomplete="family-name"
                     />
                 </div>
                 <div class="form-control">
@@ -286,9 +290,34 @@
 export default {
     name: 'CampForm',
     // components: { ParentDetails, CampDetails },
-    props: ['parentAdded', 'error', 'campsList', 'ppChecked'],
+    props: ['parentAdded', 'error', 'campsList'],
     emits: ['parent-submitted', 'booking-item-added'],
+    data() {
+        return {
+            title: 'Pupil Premium Booking',
+            parentName: '',
+            mainContact: '',
+            email: '',
+            acceptedTerms: false,
+            childName: '',
+            childSurname: '',
+            childAge: 'select',
+            pupilPrem: false,
+            ppIsChecked: false,
+            confirmedPhoto: true,
+            campName: 'select',
+            campDays: [],
+        };
+    },
+    watch: {
+        pupilPrem() {
+            return (this.ppIsChecked = this.pupilPrem ? true : false);
+        },
+    },
     methods: {
+        confirmPP() {
+            this.ppIsChecked = false;
+        },
         onSubmitParent() {
             this.$emit(
                 'parent-submitted',
@@ -308,43 +337,14 @@ export default {
                 this.confirmedPhoto,
                 this.campName,
                 this.campDays,
-                this.id,
             );
-            (this.childName = ''),
-                (this.childAge = ''),
-                (this.campName = 'select'),
-                (this.campDays = []),
-                (this.ppIsChecked = false);
-        },
-
-        confirmPP() {
+            this.childName = '';
+            this.childAge = 'select';
             this.ppIsChecked = false;
+            this.pupilPrem = false;
+            this.campName = 'select';
+            this.campDays = [];
         },
-    },
-
-    watch: {
-        pupilPrem() {
-            return (this.ppIsChecked = this.pupilPrem ? true : false);
-        },
-    },
-
-    data() {
-        return {
-            title: 'Pupil Premium Booking',
-            parentName: '',
-            mainContact: '',
-            email: '',
-            acceptedTerms: false,
-            childName: '',
-            childSurname: '',
-            childAge: 'select',
-            pupilPrem: false,
-            confirmedPhoto: true,
-            campName: 'select',
-            campDays: [],
-            ppIsChecked: false,
-            id: Math.random(),
-        };
     },
 };
 </script>
@@ -352,6 +352,10 @@ export default {
 <style scoped>
 p {
     color: var(--color-light);
+}
+
+.text-dark {
+    color: var(--color-dark);
 }
 
 @media screen and (max-width: 568px) {

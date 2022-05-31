@@ -38,6 +38,7 @@
                             :parent-name="enteredParentName"
                             :main-contact="enteredMainContact"
                             :email="enteredEmail"
+                            @removeBookingItem="removeItem"
                         ></camp-booking-details>
                     </keep-alive>
                 </base-card>
@@ -47,6 +48,10 @@
 </template>
 
 <script>
+const Airtable = require('airtable');
+const base = new Airtable({ apiKey: process.env.VUE_APP_AT_API_KEY }).base(
+    process.env.VUE_APP_BASE_ID,
+);
 import CampBookingDetails from './CampBookingDetails.vue';
 import CampForm from './CampForm.vue';
 import { ref } from '@vue/reactivity';
@@ -64,8 +69,9 @@ export default {
             selectedTab.value = tab;
         };
         const campBooking = ref([]);
-        const campPayment = ref([]);
-        const bookingRef = ref('');
+        const campPayment = ref(null);
+        const bookingRef = ref(null);
+        const paymentRef = ref(null);
         const children = ref([]);
         const enteredChildName = ref('');
         const enteredChildSurname = ref('');
@@ -87,11 +93,19 @@ export default {
         const acceptedTerms = ref(false);
         const savedParent = ref({});
         const campBookingItem = ref({});
-        const campBookingItemId = ref(null);
+        const campBookingItemId = ref(Date.now());
         const price = ref(null);
 
+        const createBookingRef = () => {
+            bookingRef.value = Date.now().toString(24);
+        };
+
+        const createPaymentRef = () => {
+            paymentRef.value = Date.now().toString(36);
+        };
+
         const handleSaveParent = (name, contact, email, terms) => {
-            bookingRef.value = contact;
+            createPaymentRef();
             enteredParentName.value = name;
             enteredMainContact.value = contact;
             enteredEmail.value = email;
@@ -102,8 +116,9 @@ export default {
                 mainContact: enteredMainContact.value,
                 email: enteredEmail.value,
                 termsAccepted: acceptedTerms.value,
-                bookingRef: bookingRef.value,
+                paymentRef: paymentRef.value,
             };
+            console.log('savedParent:_____', savedParent.value);
         };
 
         const parentAdded = ref(null);
@@ -119,19 +134,18 @@ export default {
             photo,
             camp,
             days,
-            id,
         ) => {
-            campBookingItemId.value = id;
+            createBookingRef();
+            console.log(bookingRef.value);
+            campBookingItemId.value = bookingRef.value;
             pupilPrem.value = pp;
             enteredChildName.value = name;
+            enteredChildSurname.value = surname;
             enteredChildAge.value = age;
             confirmedPhoto.value = photo;
             selectedCampName.value = camp;
             checkedCampDays.value = days;
 
-            watch(pupilPrem, () => {
-                return (ppIsChecked.value = pupilPrem.value ? true : false);
-            });
             const calculatedDays = computed(() => {
                 return (numCampDays.value = days.length);
             });
@@ -142,24 +156,25 @@ export default {
             });
 
             campBookingItem.value = {
-                id: campBookingItemId.value,
                 childName: name,
                 childSurname: surname,
+                parent: enteredParentName.value,
                 childAge: age,
                 photos: photo,
                 campName: camp,
                 campDays: days,
                 numCampDays: calculatedDays.value,
-                parent: enteredParentName.value,
-                boookingRef: bookingRef.value,
+                bookingRef: bookingRef.value,
                 pupilPrem: pp,
                 price: calculatedPrice.value,
+                paymentRef: paymentRef.value,
+                status: 'awaiting payment',
             };
 
-            children.value.push({
-                childName:
-                    enteredChildName.value + ' ' + enteredChildSurname.value,
-            });
+            if (!children.value.includes(enteredChildName.value)) {
+                children.value.push(enteredChildName.value);
+            }
+
             campBooking.value.push(campBookingItem.value);
             console.log('Camp Booking Details', campBooking.value);
         };
@@ -167,13 +182,23 @@ export default {
         const { campsList, error, loadCamps } = getCamps();
 
         loadCamps();
-        // ****No longer need computed value for form but maybe needed if getting all camps to list in view and then change in composable and send to form as current camps not camps-list.
+        // ****No longer need computed value for form but possibly needed if getting all camps to list in view and then change in composable and send to form as current camps not camps-list.
         // const currentCamps = computed(() => {
         //     return campsList.value.filter(camp => camp.status === 'current');
         // });
-
+        const removeItem = item => {
+            console.log(`Removing: ${item}`);
+            campBooking.value = campBooking.value.filter(
+                booking => booking.bookingRef !== item,
+            );
+        };
         const confirmBooking = () => {
+            // add the campBooking to Airtable
             // campBooking.save()
+
+            // add children to savedParent
+
+            // add savedParent to campPayment and send to Airtable
 
             campPayment.value.push(savedParent.value);
             // campPayment.save()
@@ -187,6 +212,8 @@ export default {
         return {
             selectedTab,
             setSelectedTab,
+            createBookingRef,
+            createPaymentRef,
             campsList,
             error,
             loadCamps,
@@ -194,6 +221,9 @@ export default {
             enteredMainContact,
             enteredEmail,
             acceptedTerms,
+            savedParent,
+            parentAdded,
+            handleSaveParent,
             bookingRef,
             enteredChildName,
             enteredChildSurname,
@@ -207,12 +237,10 @@ export default {
             campBookingItemId,
             campBooking,
             campPayment,
-            confirmBooking,
-            handleSmubit,
-            handleSaveParent,
-            savedParent,
-            parentAdded,
             handleAddCampBookingItem,
+            handleSmubit,
+            confirmBooking,
+            removeItem,
         };
     },
 };

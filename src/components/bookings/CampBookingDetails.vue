@@ -18,21 +18,18 @@
             <ul>
                 <li
                     v-for="(child, index) in campBooking"
-                    :key="index"
-                    @click="removeItem"
+                    :key="child.bookingRef"
+                    @click="removeItem(child.bookingRef)"
                 >
-                    <!-- <camp-booking-item
-                    :index="index"
-                    :camp="child.campName"
-                    :name="child.childName"
-                    :surname="child.childSurname"
-                    :age="child.childAge"
-                    :days="child.campDays"
-                    :price="child.price"
-                >
-                </camp-booking-item> -->
                     <p class="text-accent">
-                        <label>{{ index + 1 }}: {{ child.campName }}</label>
+                        <label
+                            >{{ index + 1 }}: Booking Reference:
+                            {{ child.bookingRef }} {{ child.campName }}</label
+                        >&nbsp;<span class="click"
+                            ><strong class="text-accent"
+                                >[X&nbsp;Remove]</strong
+                            ></span
+                        >
                     </p>
                     <p>
                         <label>Child's Details: </label>
@@ -50,7 +47,10 @@
                 </li>
             </ul>
             <p><label>Total Booking Cost: </label>£ {{ totalCampsCost }}</p>
-            <base-button>Submit</base-button>
+            <div class="btn-group">
+                <base-button>Confirm &amp; Submit</base-button>
+                <base-button>Cancel</base-button>
+            </div>
         </div>
         <div v-else>
             <p>
@@ -79,21 +79,18 @@ export default {
         'mainContact',
         'email',
     ],
-    // setup(props) {
-    //     const removeItem = item => {
-    //         return (props.campBooking = props.campBooking.filter(
-    //             child => child === item,
-    //         ));
-    //     };
-    //     return { removeItem };
-    // },
-    methods: {
-        removeItem(item) {
-            return (props.campBooking = props.campBooking.filter(
-                child => child === item,
-            ));
-        },
+    emits: ['removeBookingItem'],
+    setup(props, ctx) {
+        console.log('emit context', ctx);
+
+        console.log('props.campBooking:____', props.campBooking);
+
+        const removeItem = item => {
+            ctx.emit('removeBookingItem', item);
+        };
+        return { removeItem };
     },
+
     computed: {
         totalCampsCost() {
             return this.campBooking.reduce(
@@ -108,5 +105,9 @@ export default {
 <style scoped>
 p {
     color: var(--color-light);
+}
+.btn-group {
+    display: flex;
+    justify-content: space-between;
 }
 </style>

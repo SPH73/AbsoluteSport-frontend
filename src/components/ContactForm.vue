@@ -61,11 +61,14 @@ export default {
         const enteredName = ref('');
         const enteredEmail = ref('');
         const enteredMessage = ref('');
+        const enquiryId = ref(null);
         const table = base('enquiries');
         const handleSubmit = () => {
             const createEnquiryRecord = async fields => {
                 const createdRecord = await table.create(fields);
-                console.log(createdRecord.id);
+                enquiryId.value = createdRecord.id;
+                console.log('createdRecordId:----', createdRecord.id);
+                console.log('enquiryId:----', enquiryId.value);
             };
             createEnquiryRecord({
                 firstName: enteredName.value,
@@ -74,11 +77,16 @@ export default {
                 info: enteredMessage.value,
                 status: 'new',
             });
+
+            enteredName.value = '';
+            enteredEmail.value = '';
+            enteredMessage.value = '';
         };
         return {
             enteredName,
             enteredEmail,
             enteredMessage,
+            createdRecordId,
             handleSubmit,
         };
     },
