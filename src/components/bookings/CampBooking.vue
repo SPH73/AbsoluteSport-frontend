@@ -23,7 +23,8 @@
                         <camp-form
                             v-if="selectedTab === 'CampForm'"
                             @parent-submitted="handleSaveParent"
-                            @booking-item-added="handleAddCampBookingItem"
+                            @camp-booking-added="handleAddCampBookingItem"
+                            @show-steps="selectedTab = 'CampBookingDetails'"
                             :error="error"
                             :camps-list="campsList"
                             :parent-added="parentAdded"
@@ -38,7 +39,9 @@
                             :parent-name="enteredParentName"
                             :main-contact="enteredMainContact"
                             :email="enteredEmail"
-                            @removeBookingItem="removeItem"
+                            @handleRemoveBookingItem="removeItem"
+                            @handleCancelBooking="cancelBooking"
+                            @handleConfirmBooking="confirmBooking"
                         ></camp-booking-details>
                     </keep-alive>
                 </base-card>
@@ -59,6 +62,7 @@ import BaseButton from '../UI/BaseButton.vue';
 import getCamps from '../../composables/getCamps';
 import { computed, watch } from '@vue/runtime-core';
 import BaseCard from '../UI/BaseCard.vue';
+import { recordExpression } from '@babel/types';
 
 export default {
     name: 'CampBooking',
@@ -69,10 +73,12 @@ export default {
             selectedTab.value = tab;
         };
         const campBooking = ref([]);
+
         const campPayment = ref(null);
         const bookingRef = ref(null);
         const paymentRef = ref(null);
-        const children = ref([]);
+        const childList = ref([]);
+
         const enteredChildName = ref('');
         const enteredChildSurname = ref('');
         const enteredChildAge = ref('select');
@@ -93,7 +99,6 @@ export default {
         const acceptedTerms = ref(false);
         const savedParent = ref({});
         const campBookingItem = ref({});
-        const campBookingItemId = ref(Date.now());
         const price = ref(null);
 
         const createBookingRef = () => {
@@ -103,7 +108,9 @@ export default {
         const createPaymentRef = () => {
             paymentRef.value = Date.now().toString(36);
         };
-
+        const childrenNames = computed(() => {
+            return JSON.stringify(childList.value);
+        });
         const handleSaveParent = (name, contact, email, terms) => {
             createPaymentRef();
             enteredParentName.value = name;
@@ -113,15 +120,18 @@ export default {
 
             savedParent.value = {
                 parentName: enteredParentName.value,
-                mainContact: enteredMainContact.value,
+                mainPhone: enteredMainContact.value,
                 email: enteredEmail.value,
-                termsAccepted: acceptedTerms.value,
-                paymentRef: paymentRef.value,
+                paymentRef: totalCost > 0 ? paymentRef.value : 'N/A',
+                numChildren: numChildren,
+                childrenNames: childrenNames,
+                amountDue: totalCost,
+                status: totalCost > 0 ? 'awaiting payment' : 'pupil premium',
             };
-            console.log('savedParent:_____', savedParent.value);
         };
 
         const parentAdded = ref(null);
+
         watch(savedParent, () => {
             parentAdded.value = Object.keys(savedParent.value).length;
         });
@@ -136,8 +146,20 @@ export default {
             days,
         ) => {
             createBookingRef();
-            console.log(bookingRef.value);
-            campBookingItemId.value = bookingRef.value;
+
+            if (!childList.value.includes(name)) {
+                childList.value.push(name);
+            }
+            const calculatedDays = computed(() => {
+                return (numCampDays.value = days.length);
+            });
+
+            const calculatedPrice = computed(() => {
+                return (price.value = pupilPrem.value
+                    ? 0
+                    : numCampDays.value * 25);
+            });
+
             pupilPrem.value = pp;
             enteredChildName.value = name;
             enteredChildSurname.value = surname;
@@ -146,38 +168,31 @@ export default {
             selectedCampName.value = camp;
             checkedCampDays.value = days;
 
-            const calculatedDays = computed(() => {
-                return (numCampDays.value = days.length);
-            });
-            const calculatedPrice = computed(() => {
-                return (price.value = pupilPrem.value
-                    ? 0
-                    : numCampDays.value * 25);
-            });
-
             campBookingItem.value = {
-                childName: name,
-                childSurname: surname,
-                parent: enteredParentName.value,
-                childAge: age,
-                photos: photo,
-                campName: camp,
-                campDays: days,
+                childName: enteredChildName.value,
+                childSurname: enteredChildSurname.value,
+                parentName: enteredParentName.value,
+                childAge: enteredChildAge.value,
+                photos: confirmedPhoto.value,
+                campName: selectedCampName.value,
+                campDays: checkedCampDays.value,
                 numCampDays: calculatedDays.value,
                 bookingRef: bookingRef.value,
-                pupilPrem: pp,
+                pupilPrem: pupilPrem.value,
                 price: calculatedPrice.value,
                 paymentRef: paymentRef.value,
-                status: 'awaiting payment',
+                status: 'reserved',
             };
 
-            if (!children.value.includes(enteredChildName.value)) {
-                children.value.push(enteredChildName.value);
-            }
-
             campBooking.value.push(campBookingItem.value);
-            console.log('Camp Booking Details', campBooking.value);
         };
+
+        const totalCost = computed(() => {
+            return campBooking.value.reduce(
+                (total, curr) => (total = total + curr.price),
+                0,
+            );
+        });
 
         const { campsList, error, loadCamps } = getCamps();
 
@@ -187,26 +202,64 @@ export default {
         //     return campsList.value.filter(camp => camp.status === 'current');
         // });
         const removeItem = item => {
-            console.log(`Removing: ${item}`);
             campBooking.value = campBooking.value.filter(
                 booking => booking.bookingRef !== item,
             );
         };
+
+        const numChildren = computed(() => {
+            return childList.value.length;
+        });
+
         const confirmBooking = () => {
-            // add the campBooking to Airtable
-            // campBooking.save()
+            const bookings = base('camp-bookings');
+            const payments = base('camp-payments');
+            let bookingsCreated = false;
 
-            // add children to savedParent
+            const createBookings = async fields => {
+                try {
+                    const createdBooking = await bookings.create(fields);
+                    if (!createdBooking) {
+                        throw Error('unable to create records');
+                    }
+                    if (createdBooking) {
+                        alert(
+                            `Booking Id: ${createdBooking.id} Created Successfully'`,
+                        );
+                        console.log('Booking ID: ______', createdBooking.id);
+                        bookingsCreated = true;
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            };
 
-            // add savedParent to campPayment and send to Airtable
+            for (let fields of campBooking.value) {
+                createBookings(fields);
+            }
 
-            campPayment.value.push(savedParent.value);
-            // campPayment.save()
-            console.log('Booking confirmed');
+            const createPayment = async fields => {
+                try {
+                    const createdPaymentRecord = await payments.create(fields);
+                    if (!createdPaymentRecord) {
+                        throw Error('');
+                    }
+                    console.log('paymentID:______', createdPaymentRecord.id);
+                } catch (error) {
+                    console.log(error);
+                }
+            };
+            if (bookingsCreated) {
+                alert('Attempting payment record');
+            }
+            createPayment(savedParent.value);
+
+            console.log('savedParent confirmation:______', savedParent.value);
         };
 
-        const handleSmubit = () => {
-            console.log('form suubmitted');
+        const cancelBooking = () => {
+            savedParent.value = {};
+            campBooking.value = [];
         };
 
         return {
@@ -222,8 +275,8 @@ export default {
             enteredEmail,
             acceptedTerms,
             savedParent,
-            parentAdded,
             handleSaveParent,
+            parentAdded,
             bookingRef,
             enteredChildName,
             enteredChildSurname,
@@ -234,11 +287,13 @@ export default {
             checkedCampDays,
             price,
             campBookingItem,
-            campBookingItemId,
+            handleAddCampBookingItem,
+            childList,
+            numChildren,
+            totalCost,
             campBooking,
             campPayment,
-            handleAddCampBookingItem,
-            handleSmubit,
+            cancelBooking,
             confirmBooking,
             removeItem,
         };
