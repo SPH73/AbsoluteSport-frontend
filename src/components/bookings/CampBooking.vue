@@ -62,7 +62,6 @@ import BaseButton from '../UI/BaseButton.vue';
 import getCamps from '../../composables/getCamps';
 import { computed, watch } from '@vue/runtime-core';
 import BaseCard from '../UI/BaseCard.vue';
-import { recordExpression } from '@babel/types';
 
 export default {
     name: 'CampBooking',
@@ -122,11 +121,11 @@ export default {
                 parentName: enteredParentName.value,
                 mainPhone: enteredMainContact.value,
                 email: enteredEmail.value,
-                paymentRef: totalCost > 0 ? paymentRef.value : 'N/A',
+                paymentRef: paymentRef.value,
                 numChildren: numChildren,
                 childrenNames: childrenNames,
                 amountDue: totalCost,
-                status: totalCost > 0 ? 'awaiting payment' : 'pupil premium',
+                status: 'awaiting payment',
             };
         };
 
@@ -253,8 +252,6 @@ export default {
                 alert('Attempting payment record');
             }
             createPayment(savedParent.value);
-
-            console.log('savedParent confirmation:______', savedParent.value);
         };
 
         const cancelBooking = () => {
