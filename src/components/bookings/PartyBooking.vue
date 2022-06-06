@@ -29,7 +29,8 @@
                                     name="firstName"
                                     id="firstName"
                                     type="text"
-                                    v-model="enteredFirstName"
+                                    v-model="enteredParentFirstName"
+                                    autocomplete="given-name"
                                 />
                             </div>
                             <div class="form-control">
@@ -41,6 +42,7 @@
                                     id="surname"
                                     type="text"
                                     v-model="enteredSurname"
+                                    autocomplete="family-name"
                                 />
                             </div>
                             <div class="form-control">
@@ -52,12 +54,11 @@
                                     id="email"
                                     type="email"
                                     v-model="enteredEmail"
+                                    autocomplete="email"
                                 />
                             </div>
                             <div class="form-control">
-                                <label for="mainContact"
-                                    >Main Contact Number</label
-                                >
+                                <label for="mainContact">Main Phone No.</label>
                             </div>
                             <div class="form-control">
                                 <input
@@ -65,6 +66,7 @@
                                     id="mainContact"
                                     type="tel"
                                     v-model="enteredPhone"
+                                    autocomplete="tel"
                                 />
                             </div>
                         </div>
@@ -79,6 +81,7 @@
                                     id="childName"
                                     type="text"
                                     v-model="enteredChildName"
+                                    autocomplete="name"
                                 />
                             </div>
                             <div class="form-control">
@@ -90,6 +93,9 @@
                                     id="childAge"
                                     type="number"
                                     v-model="enteredChildAge"
+                                    autocomplete="on"
+                                    min="5"
+                                    max="14"
                                 />
                             </div>
                             <div class="form-control">
@@ -140,7 +146,7 @@
                                         <option
                                             v-for="option in partyList"
                                             :key="option.id"
-                                            :value="option.partyRef"
+                                            :value="option.partyName"
                                         >
                                             {{ option.partyName }}
                                         </option>
@@ -185,24 +191,31 @@
                                 <input type="time" v-model="chosenTime" />
                             </div>
                             <div class="form-control">
-                                <label for="partyLength">Party Length</label>
-                            </div>
-                            <div class="form-control">
-                                <input
-                                    type="number"
-                                    name="partyLength"
-                                    id="partyLength"
-                                />
-                            </div>
-                            <div class="form-control">
-                                <label for="numChild"
-                                    >Estimated Number of Children
-                                    Attending</label
+                                <label for="partyLength"
+                                    >Party Length (hr)</label
                                 >
                             </div>
                             <div class="form-control">
                                 <input
                                     type="number"
+                                    step="0.5"
+                                    min="1"
+                                    max="3"
+                                    name="partyLength"
+                                    id="partyLength"
+                                    v-model="chosenPartyLength"
+                                />
+                            </div>
+                            <div class="form-control">
+                                <label for="numChild"
+                                    >Number of Children Attending</label
+                                >
+                            </div>
+                            <div class="form-control">
+                                <input
+                                    type="number"
+                                    min="1"
+                                    step="1"
                                     v-model="numChild"
                                     name="numChild"
                                     id="numChild"
@@ -210,8 +223,7 @@
                             </div>
                             <div class="form-control">
                                 <label for="postCode"
-                                    >Post Code (if no venue booked please use
-                                    house postcode</label
+                                    >Post Code (venue or house)</label
                                 >
                             </div>
                             <div class="form-control">
@@ -220,12 +232,13 @@
                                     v-model="enteredPostCode"
                                     name="postCode"
                                     id="postCode"
+                                    autocomplete="postal-code"
                                 />
                             </div>
                         </div>
                         <div class="form-control">
                             <base-button class="primary"
-                                >Send Me A Quote</base-button
+                                >Please Send Me A Quote!</base-button
                             >
                         </div>
                     </form>
@@ -236,13 +249,18 @@
 </template>
 
 <script>
+const Airtable = require('airtable');
+const base = new Airtable({ apiKey: process.env.VUE_APP_AT_API_KEY }).base(
+    process.env.VUE_APP_BASE_ID,
+);
 import { ref } from '@vue/reactivity';
 import getParties from '../../composables/getParties';
 export default {
     name: 'PartyForm',
 
     setup() {
-        const enteredFirstName = ref('');
+        const partyData = ref({});
+        const enteredParentFirstName = ref('');
         const enteredSurname = ref('');
         const enteredEmail = ref('');
         const enteredPhone = ref('');
@@ -257,30 +275,57 @@ export default {
         const enteredChildAge = ref(null);
         const enteredChildBDay = ref(null);
         const numChild = ref(null);
+        const quoteRef = ref('');
 
         const { partyList, error, load } = getParties();
 
         load();
 
         const handleSubmit = () => {
+            const table = base('enquiries');
+            const createEnquiryRecord = async fields => {
+                try {
+                    const createdEnquiry = await table.create(fields);
+                    if (!createdEnquiry) {
+                        throw Error(
+                            'Sorry we were unable to send your enquiry, please try later or contact us if the problem persists.',
+                        );
+                    }
+                    console.log('Party record: ______', createdEnquiry.id);
+                    quoteRef.value = createdEnquiry.id;
+                    console.log('Party quote ref: ______', quoteRef.value);
+                } catch (error) {
+                    console.log(error);
+                }
+            };
             console.log(
-                enteredFirstName.value,
-                enteredSurname.value,
-                enteredEmail.value,
-                enteredPhone.value,
-                enteredPostCode.value,
-                selectedParty.value,
-                chosenDate1.value,
-                chosenDate2.value,
-                chosenTime.value,
-                chosenPartyLength.value,
-                enteredChildName.value,
-                enteredChildAge.value,
-                enteredChildBDay.value,
+                'partyForm data',
+                (partyData.value = {
+                    firstName: enteredParentFirstName.value,
+                    surname: enteredSurname.value,
+                    email: enteredEmail.value,
+                    phone: enteredPhone.value,
+                    postCode: enteredPostCode.value,
+                    childName: enteredChildName.value,
+                    childAge: enteredChildAge.value,
+                    childsBirthday: enteredChildBDay.value,
+                    party: selectedParty.value,
+                    partyDate1: chosenDate1.value,
+                    partyDate2: chosenDate2.value,
+                    partyStart: chosenTime.value,
+                    partyLength: chosenPartyLength.value,
+                    numChildren: numChild.value,
+                    info: enteredInfo.value,
+                    enquiryType: 'party',
+                    status: 'new',
+                }),
             );
+            createEnquiryRecord(partyData.value);
         };
+
         return {
-            enteredFirstName,
+            partyData,
+            enteredParentFirstName,
             enteredSurname,
             numChild,
             enteredEmail,
@@ -298,6 +343,8 @@ export default {
             enteredChildName,
             enteredChildAge,
             enteredChildBDay,
+            handleSubmit,
+            quoteRef,
         };
     },
 };
