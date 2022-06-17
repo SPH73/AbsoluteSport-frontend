@@ -387,7 +387,7 @@ const Airtable = require('airtable');
 const base = new Airtable({ apiKey: process.env.VUE_APP_AT_API_KEY }).base(
     process.env.VUE_APP_BASE_ID,
 );
-const verifyUrl = 'https://api.friendlycaptcha.com/api/v1/siteverify';
+const verifyUrl = process.env.VUE_APP_FRIENDLY_RECAPTCHA_VERIFY_URL;
 const sitekey = process.env.VUE_APP_FRIENDLY_RECAPTCHA_SITEKEY;
 const apikey = process.env.VUE_APP_FRIENDLY_RECAPTCHA_APIKEY;
 import { ref } from '@vue/reactivity';
@@ -418,30 +418,38 @@ export default {
         const numChild = ref({ val: null, isValid: true });
         const quoteRef = ref('');
         const formIsValid = ref(true);
+        const solution = ref('');
 
         const { partyList, error, load } = getParties();
 
         load();
 
+        const handleCaptchaSolved = solution => {
+            solution.value = solution;
+        };
+
         const verifyRecaptcha = async () => {
+            console.log('Verify URL', verifyUrl);
             const data = {
-                solution: document.getElementsByClassName(
-                    '.frc-captcha-solution',
-                ).value,
+                solution: document.querySelector('.frc-captcha-solution').value,
                 secret: apikey,
                 sitekey: sitekey,
             };
+            console.log(data.solution);
             try {
-                const response = await fetch(
-                    'https://api.friendlycaptcha.com/api/v1/siteverify',
-                    {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data),
-                    },
-                );
+                const response = await fetch(verifyUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+
+                console.log('data', data);
                 console.log('Response', response);
+                if (!response.ok) {
+                    alert('Verifcation failed');
+                    formIsValid = false;
+                    return;
+                }
             } catch (error) {
                 console.error('Error: ', error);
                 formIsValid.value = false;
@@ -530,9 +538,8 @@ export default {
                 numChildren: numChild.value.val,
                 status: 'new',
                 enquiryType: 'party',
-                recaptcha: document.getElementsByClassName(
-                    '.frc-captcha-solution',
-                ).value,
+                recaptcha: document.querySelector('.frc-captcha-solution')
+                    .value,
             };
             const table = base('enquiries');
             const createEnquiryRecord = async fields => {
@@ -576,10 +583,12 @@ export default {
             handleSubmit,
             quoteRef,
             formIsValid,
-            verifyUrl,
-            verifyRecaptcha,
+            solution,
             sitekey,
             apikey,
+            handleCaptchaSolved,
+            verifyRecaptcha,
+            verifyUrl,
         };
     },
 };
