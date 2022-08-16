@@ -134,11 +134,14 @@ div.btn-group > * {
 } */
 
 .party-images img {
-    width: 35vw;
+    width: 35%;
     float: right;
     margin: 2rem;
     border: 0.6rem solid white;
     border-radius: 0.4rem;
+    background-color: white;
+    object-fit: cover;
+    object-position: bottom;
 }
 
 .party-images:nth-of-type(odd) img {
