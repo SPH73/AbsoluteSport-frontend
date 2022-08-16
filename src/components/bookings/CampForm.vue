@@ -39,7 +39,10 @@
         <div v-if="!parentAdded">
             <form @submit.prevent="onSubmitParent">
                 <div class="grid-inputs">
-                    <div class="form-control">
+                    <div
+                        class="form-control"
+                        :class="{ invalid: !parentName.isValid }"
+                    >
                         <label for="parentName">Name</label>
                     </div>
                     <div class="form-control">
@@ -47,9 +50,8 @@
                             type="text"
                             name="parentName"
                             id="parentName"
-                            required
                             autocomplete="on"
-                            v-model.trim.lazy="parentName"
+                            v-model.trim.lazy="parentName.val"
                         />
                     </div>
                     <div class="form-control">
@@ -60,9 +62,8 @@
                             type="tel"
                             name="mainContact"
                             id="mainContact"
-                            required
                             autocomplete="tel"
-                            v-model.trim.lazy="mainContact"
+                            v-model.trim.lazy="mainContact.val"
                         />
                     </div>
                     <div class="form-control">
@@ -73,9 +74,8 @@
                             type="email"
                             name="email"
                             id="email"
-                            required
                             autocomplete="email"
-                            v-model.trim.lazy="email"
+                            v-model.trim.lazy="email.val"
                         />
                     </div>
                 </div>
@@ -87,13 +87,14 @@
                         type="checkbox"
                         name="terms-agreed"
                         id="terms-agreed"
-                        required
                         value="true"
-                        v-model="acceptedTerms"
+                        v-model="acceptedTerms.val"
                         class="checkbox-input"
                     />
                 </div>
-
+                <p v-if="!parentformIsValid" class="errors">
+                    Please correct the above errors and submit again.
+                </p>
                 <div class="form-control">
                     <base-button v-if="acceptedTerms">Save Details</base-button>
                 </div>
@@ -118,7 +119,7 @@
                             name="childName"
                             id="childName"
                             required
-                            v-model.trim.lazy="childName"
+                            v-model.trim.lazy="childName.val"
                         />
                     </div>
                     <div class="form-control">
@@ -130,7 +131,7 @@
                             name="childSurname"
                             id="childSurname"
                             required
-                            v-model.trim.lazy="childSurname"
+                            v-model.trim.lazy="childSurname.val"
                             autocomplete="family-name"
                         />
                     </div>
@@ -141,7 +142,7 @@
                         <select
                             name="childAge"
                             id="childAge"
-                            v-model.number="childAge"
+                            v-model.number="childAge.val"
                             required
                             class="form-control-select"
                         >
@@ -195,7 +196,7 @@
                                 required
                                 name="campName"
                                 id="campName"
-                                v-model="campName"
+                                v-model="campName.val"
                                 class="form-control-select"
                             >
                                 <option disabled value="select">
@@ -226,7 +227,7 @@
                             name="mon"
                             id="mon"
                             value="Monday"
-                            v-model="campDays"
+                            v-model="campDays.val"
                             class="checkbox-input"
                         />
                     </div>
@@ -237,7 +238,7 @@
                             name="tue"
                             id="tue"
                             value="Tuesday"
-                            v-model="campDays"
+                            v-model="campDays.val"
                             class="checkbox-input"
                         />
                     </div>
@@ -248,7 +249,7 @@
                             name="wed"
                             id="wed"
                             value="Wednesday"
-                            v-model="campDays"
+                            v-model="campDays.val"
                             class="checkbox-input"
                         />
                     </div>
@@ -259,7 +260,7 @@
                             name="thu"
                             id="thu"
                             value="Thursday"
-                            v-model="campDays"
+                            v-model="campDays.val"
                             class="checkbox-input"
                         />
                     </div>
@@ -270,7 +271,7 @@
                             name="fri"
                             id="fri"
                             value="Friday"
-                            v-model="campDays"
+                            v-model="campDays.val"
                             class="checkbox-input"
                         />
                     </div>
@@ -310,47 +311,103 @@ export default {
     emits: ['parent-submitted', 'camp-booking-added', 'show-steps'],
     setup(props, ctx) {
         const title = 'Pupil Premium Booking';
-        const parentName = ref('');
-        const mainContact = ref('');
-        const email = ref('');
-        const acceptedTerms = ref(false);
-        const childName = ref('');
-        const childSurname = ref('');
-        const childAge = ref('select');
+        const parentName = ref({ val: '', isValid: true });
+        const mainContact = ref({ val: '', isValid: true });
+        const email = ref({ val: '', isValid: true });
+        const acceptedTerms = ref({ val: false, isValid: true });
+        const childName = ref({ val: '', isValid: true });
+        const childSurname = ref({ val: '', isValid: true });
+        const childAge = ref({ val: 'select', isValid: true });
         const pupilPrem = ref(false);
         const ppIsChecked = ref(false);
         const confirmedPhoto = ref(true);
-        const campName = ref('select');
-        const campDays = ref([]);
+        const campName = ref({ val: 'select', isValid: true });
+        const campDays = ref({ val: [], isValid: true });
+        const parentformIsValid = ref(true);
+        const campformIsValid = ref(true);
 
         watch(pupilPrem, () => {
             ppIsChecked.value = pupilPrem.value ? true : false;
         });
 
+        const validateParentForm = () => {
+            parentformIsValid.value = true;
+            if (parentName.value.val === '') {
+                parentName.value.isValid = false;
+                parentformIsValid.value = false;
+            }
+            if (mainContact.value.val === '') {
+                mainContact.value.isValid = false;
+                parentformIsValid.value = false;
+            }
+            if (mainContact.value.val === '') {
+                mainContact.value.isValid = false;
+                parentformIsValid.value = false;
+            }
+            if (acceptedTerms.value.val === false) {
+                acceptedTerms.value.isValid = false;
+                parentformIsValid.value = false;
+            }
+        };
+
         const onSubmitParent = () => {
+            validateParentForm();
+            if (!parentformIsValid) {
+                return;
+            }
             ctx.emit(
                 'parent-submitted',
-                parentName.value,
-                mainContact.value,
-                email.value,
-                acceptedTerms.value,
+                parentName.value.val,
+                mainContact.value.val,
+                email.value.val,
+                acceptedTerms.value.val,
             );
         };
+
+        const validateCampForm = () => {
+            campformIsValid.value = true;
+            if (childName.value.val === '') {
+                childName.value.isValid = false;
+                campformIsValid.value = false;
+            }
+            if (childSurname.value.val === '') {
+                childSurname.value.isValid = false;
+                campformIsValid.value = false;
+            }
+            if (childAge.value.val === 'select') {
+                childAge.value.isValid = false;
+                campformIsValid.value = false;
+            }
+            if (campName.value.val === 'select') {
+                campName.value.isValid = false;
+                campformIsValid.value = false;
+            }
+            if (campDays.value.val.length === 0) {
+                campDays.value.isValid = false;
+                campformIsValid.value = false;
+            }
+        };
+
         const onAddBookingItem = () => {
+            validateCampForm();
+            if (!campformIsValid) {
+                return;
+            }
             ctx.emit(
                 'camp-booking-added',
-                childName.value,
-                childSurname.value,
-                childAge.value,
-                pupilPrem.value,
-                confirmedPhoto.value,
-                campName.value,
-                campDays.value,
+                childName.value.val,
+                childSurname.value.val,
+                childAge.value.val,
+                pupilPrem.value.val,
+                confirmedPhoto.value.val,
+                campName.value.val,
+                campDays.value.val,
             );
 
-            campName.value = 'select';
-            campDays.value = [];
+            campName.value.val = 'select';
+            campDays.value.val = [];
         };
+
         const onShowSteps = () => {
             ctx.emit('show-steps');
         };
@@ -375,6 +432,7 @@ export default {
             confirmPP,
             onAddBookingItem,
             onShowSteps,
+            parentformIsValid,
         };
     },
 
@@ -436,6 +494,16 @@ p {
 
 .text-dark {
     color: var(--color-dark);
+}
+
+.invalid label {
+    color: #ff0000;
+}
+
+.invalid input,
+.invalid textarea,
+.invalid select {
+    border: 1px solid #ff0000;
 }
 
 @media screen and (max-width: 568px) {

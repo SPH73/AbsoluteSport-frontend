@@ -44,7 +44,10 @@
                                         name="pName"
                                         id="pName"
                                         type="text"
-                                        v-model="enteredParentName"
+                                        v-model.trim.lazy="
+                                            enteredParentName.val
+                                        "
+                                        autocomplete="on"
                                     />
                                 </div>
                                 <div class="form-control">
@@ -57,7 +60,8 @@
                                         name="mainContact"
                                         id="mainContact"
                                         type="tel"
-                                        v-model="enteredPhone"
+                                        v-model.trim.lazy="enteredPhone.val"
+                                        autocomplete="tel"
                                     />
                                 </div>
                                 <div class="form-control">
@@ -68,7 +72,8 @@
                                         name="email"
                                         id="email"
                                         type="email"
-                                        v-model="enteredEmail"
+                                        v-model.trim.lazy="enteredEmail.val"
+                                        autocomplete="email"
                                     />
                                 </div>
                                 <div class="form-control">
@@ -81,7 +86,7 @@
                                         name="altPName"
                                         id="altPName"
                                         type="text"
-                                        v-model="enteredAltParentName"
+                                        v-model.trim.lazy="enteredAltParentName"
                                     />
                                 </div>
                                 <div class="form-control">
@@ -94,7 +99,7 @@
                                         name="altContact"
                                         id="altContact"
                                         type="tel"
-                                        v-model="enteredAltContact"
+                                        v-model.trim.lazy="enteredAltContact"
                                     />
                                 </div>
                                 <div class="form-control">
@@ -107,7 +112,9 @@
                                         name="childFName"
                                         id="childFName"
                                         type="text"
-                                        v-model="enteredChildFirstName"
+                                        v-model.trim.lazy="
+                                            enteredChildFirstName.val
+                                        "
                                     />
                                 </div>
                                 <div class="form-control">
@@ -118,7 +125,8 @@
                                         name="surname"
                                         id="surname"
                                         type="text"
-                                        v-model="enteredSurname"
+                                        v-model.trim.lazy="enteredSurname.val"
+                                        autocomplete="family-name"
                                     />
                                 </div>
                                 <div class="form-control">
@@ -129,7 +137,7 @@
                                 <div class="form-control">
                                     <textarea
                                         rows="4"
-                                        v-model="enteredMedical"
+                                        v-model="enteredMedical.val"
                                         name="medical"
                                         id="medical"
                                         placeholder="Please tell us about any medical conditions we need to be aware of. (N/A if none)"
@@ -142,7 +150,7 @@
                                     <select
                                         name="yearG"
                                         id="yearG"
-                                        v-model="enteredYearGroup"
+                                        v-model="enteredYearGroup.val"
                                     >
                                         <option disabled value="select">
                                             Select year...
@@ -175,7 +183,7 @@
                                     <select
                                         name="school"
                                         id="school"
-                                        v-model="selectedSchool"
+                                        v-model="selectedSchool.val"
                                     >
                                         <option disabled value="select">
                                             Select School...
@@ -205,13 +213,23 @@
                                     v-for="club in schoolClubs"
                                     :key="club.id"
                                 >
+                                    <div>
+                                        <label>
+                                            Year's:
+                                            <span
+                                                v-for="year in club.yearRange"
+                                                :key="year"
+                                                >{{ year }},
+                                            </span>
+                                        </label>
+                                    </div>
                                     <label class="checkbox-label-control">{{
                                         club.clubName
                                     }}</label>
                                     <input
                                         type="checkbox"
                                         :value="club.clubRef"
-                                        v-model="checkedClubs"
+                                        v-model="checkedClubs.val"
                                         class="checkbox-input"
                                     />
                                 </div>
@@ -232,7 +250,7 @@
                                     id="terms-agreed"
                                     required
                                     value="true"
-                                    v-model="acceptedTerms"
+                                    v-model="acceptedTerms.val"
                                     class="checkbox-input"
                                 />
                             </div>
@@ -250,6 +268,10 @@
 </template>
 
 <script>
+const Airtable = require('airtable');
+const base = new Airtable({ apiKey: process.env.VUE_APP_AT_API_KEY }).base(
+    process.env.VUE_APP_BASE_ID,
+);
 import { ref } from '@vue/reactivity';
 import { computed, watchEffect } from '@vue/runtime-core';
 import getClubs from '../../composables/getClubList';
@@ -259,57 +281,127 @@ export default {
     name: 'ClubBooking',
 
     setup() {
-        const enteredChildFirstName = ref('');
-        const enteredSurname = ref('');
-        const enteredMedical = ref('');
-        const enteredYearGroup = ref('select');
-        const selectedSchool = ref('select');
-        const checkedClubs = ref([]);
-        const enteredParentName = ref('');
-        const enteredEmail = ref('');
-        const enteredPhone = ref('');
+        const enteredChildFirstName = ref({ val: '', isValid: true });
+        const enteredSurname = ref({ val: '', isValid: true });
+        const enteredMedical = ref({ val: '', isValid: true });
+        const enteredYearGroup = ref({ val: 'select', isValid: true });
+        const selectedSchool = ref({ val: 'select', isValid: true });
+        const filteredClubs = ref([]);
+        const checkedClubs = ref({ val: [], isValid: true });
+        const enteredParentName = ref({ val: '', isValid: true });
+        const enteredEmail = ref({ val: '', isValid: true });
+        const enteredPhone = ref({ val: '', isValid: true });
         const enteredAltParentName = ref('');
         const enteredAltContact = ref('');
-        const acceptedTerms = ref(false);
+        const acceptedTerms = ref({ val: false, isValid: true });
+        const bookingRef = ref('');
+        const paymentRef = ref('');
+        const clubBooking = ref({});
+        const formIsValid = ref(true);
 
         const { clubList, clubError, loadClubs } = getClubs();
         const { schoolList, schoolError, loadSchools } = getSchoolList();
 
         loadClubs();
-        console.log('ClubList', clubList.value);
+
         loadSchools();
-        console.log('SchoolList', schoolList.value);
+        console.log('ClubList', clubList.value);
 
         const schoolClubs = computed(() => {
-            return clubList.value.filter(school =>
-                school.schoolRef.includes(selectedSchool.value),
-            );
+            return filteredClubs.value.filter(el => {
+                return el.schoolRef === selectedSchool.value.val;
+            });
+        });
+
+        const filteredSchoolClubs = computed(() => {
+            let result;
+            let yearGroup = enteredYearGroup.value.val.toString();
+            result = clubList.value.some(x => {
+                return x.yearRange.includes(yearGroup);
+            });
+            console.log('result', result);
+            filteredClubs.value.push(result);
+            console.log('filteredClubs', filteredClubs.value);
+            return filteredClubs.value;
         });
 
         watchEffect(() => {
-            console.log('Selected school', selectedSchool.value);
-            console.log('schools clubs: ', schoolClubs.value);
+            console.log('selected year', enteredYearGroup.value.val.toString());
+            console.log('Selected school', selectedSchool.value.val);
         });
 
+        const createBookingRef = () => {
+            bookingRef.value = Date.now().toString(24);
+        };
+
+        const createPaymentRef = () => {
+            paymentRef.value = Date.now().toString(36);
+        };
+
+        const validateForm = () => {
+            if (enteredParentName.value.val === '') {
+                enteredParentName.value.isValid = false;
+                formIsValid.value = false;
+            }
+            if (enteredSurname.value.val === '') {
+                enteredSurname.value.isValid = false;
+                formIsValid.value = false;
+            }
+            if (enteredPhone.value.val === '') {
+                enteredPhone.value.isValid = false;
+                formIsValid.value = false;
+            }
+            if (enteredMedical.value.val === '') {
+                enteredMedical.value.isValid = false;
+                formIsValid.value = false;
+            }
+            if (enteredYearGroup.value.val === 'select') {
+                enteredYearGroup.value.isValid = false;
+                formIsValid.value = false;
+            }
+            if (selectedSchool.value.val === 'select') {
+                selectedSchool.value.isValid = false;
+                formIsValid.value = false;
+            }
+            if (checkedClubs.value.val.length === 0) {
+                checkedClubs.value.isValid = false;
+                formIsValid.value = false;
+            }
+            if (!acceptedTerms) {
+                checkedClubs.value.isValid = false;
+                formIsValid.value = false;
+            }
+        };
         const handleSmubit = () => {
-            if (acceptedTerms) {
-                console.log(
-                    enteredParentName.value,
-                    enteredPhone.value,
-                    enteredEmail.value,
-                    enteredAltParentName.value,
-                    enteredAltContact.value,
-                    enteredChildFirstName.value,
-                    enteredSurname.value,
-                    enteredMedical.value,
-                    enteredYearGroup.value,
-                    selectedSchool.value,
-                    checkedClubs.value,
-                );
+            if (!formIsValid.value) {
+                return;
+            }
+            createPaymentRef();
+
+            for (let club in checkedClubs.value) {
+                createBookingRef();
+                clubBooking.value = {
+                    club: club,
+                    paymentRef: paymentRef.value,
+                    bookingRef: bookingRef.value,
+                    Surname: enteredSurname.value.val,
+                    childName: enteredChildFirstName.value.val,
+                    parentName: enteredParentName.value.val,
+                    contactNumber: enteredPhone.value.val,
+                    email: enteredEmail.value.val,
+                    altParentName: enteredAltParentName.value.val,
+                    altParentContact: enteredAltContact.value.val,
+                    medicalConds: enteredMedical.value.val,
+                    yearGroup: enteredYearGroup.value.val,
+                    school: selectedSchool.value.val,
+                };
+                console.log('club booked', clubBooking.value);
             }
         };
 
         return {
+            formIsValid,
+            validateForm,
             enteredChildFirstName,
             enteredSurname,
             enteredMedical,
@@ -330,6 +422,10 @@ export default {
             loadClubs,
             loadSchools,
             handleSmubit,
+            createBookingRef,
+            createPaymentRef,
+            clubBooking,
+            filteredSchoolClubs,
         };
     },
 };
