@@ -10,13 +10,19 @@
             </div>
             <div class="connect-area footer-item">
                 <h5>CONNECT WITH US</h5>
-                <router-link to="/">Phone</router-link>
-                <router-link to="/">Message</router-link>
-                <router-link to="/">Email</router-link>
+                <router-link to="tel:07540309658">Phone</router-link>
+                <router-link to="sms:07540309658"> Text Message</router-link>
                 <router-link to="/contact">Contact Form</router-link>
-                <router-link to="/">Facebook</router-link>
-                <router-link to="/">LinkedIn</router-link>
-                <router-link to="/">Instagram</router-link>
+                <router-link to="https://www.facebook.com/AbsoluteSport.AS"
+                    >Facebook</router-link
+                >
+                <router-link
+                    to="https://www.linkedin.com/in/ben-blakeley-b2600522b/"
+                    >LinkedIn</router-link
+                >
+                <router-link to="https://www.instagram.com/absolutesport2211/"
+                    >Instagram</router-link
+                >
                 <router-link to="/">About</router-link>
             </div>
 
@@ -60,19 +66,21 @@
                 <h5>© 2022 AbsoluteSport</h5>
             </div>
             <div class="social-area footer-item">
-                <h5>Share us!</h5>
-                <div class="share-icons">
-                    <a href="http://" target="_blank" rel="noopener noreferrer"
-                        ><img
-                            src="@/assets/facebook.svg"
-                            alt="Facebook sharing icon"
-                    /></a>
-                    <a href="http://" target="_blank" rel="noopener noreferrer"
-                        ><img
-                            src="@/assets/instagram.svg"
-                            alt="Instagram sharing icon"
-                    /></a>
+                <div
+                    class="fb-share-button"
+                    data-href="https://www.facebook.com/AbsoluteSport.AS"
+                    data-layout="button_count"
+                    data-size="large"
+                >
+                    <a
+                        target="_blank"
+                        href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.facebook.com%2FAbsoluteSport.AS&amp;src=sdkpreparse"
+                        class="fb-xfbml-parse-ignore"
+                        >Share</a
+                    >
                 </div>
+
+                <div class="share-icons"></div>
             </div>
         </div>
         <div class="footer-grid">
@@ -95,6 +103,7 @@ export default {};
 <style>
 #footer-container {
     padding-block: 1rem;
+    /* background-color: black; */
 }
 .footer-grid {
     display: grid;
@@ -195,7 +204,7 @@ footer h5 {
 .section.footer {
     margin-top: auto;
     flex-shrink: 0;
-    background-color: var(--color-secondary);
+    background-color: var(--color-dark);
     color: var(--color-light);
 }
 </style>
