@@ -17,6 +17,7 @@ const getClubList = () => {
                 .select({
                     filterByFormula:
                         'AND(spaceAvailable > 0, status = "current")',
+                    sort: [{ field: 'clubName', direction: 'asc' }],
                 })
                 .firstPage();
             if (!records) {
@@ -27,14 +28,19 @@ const getClubList = () => {
                     id: record.id,
                     clubName: record.get('clubName'),
                     clubRef: record.get('clubRef'),
-                    schoolRef: record.get('schoolRef'),
-                    schoolName: record.get('schoolName'),
-                    price: record.get('price'),
                     spaces: record.get('spaceAvailable'),
+                    yearRange: record.get('yearRange'),
+                    schoolName: record.get('schoolName'),
+                    schoolRef: record.get('schoolRef'),
+                    price: record.get('price'),
+                    sessions: record.get('sessions'),
+                    termCost: record.get('termCost'),
+                    startDate: record.get('startDate'),
+                    endDate: record.get('endDate'),
                 };
                 clubList.value.push(club);
             });
-            console.log(clubList.value);
+            console.log('clublist', clubList.value);
         } catch (err) {
             clubError.value = err.message;
             console.log(clubError.value);

@@ -14,7 +14,7 @@ const getCamps = () => {
         try {
             const records = await table
                 .select({
-                    sort: [{ field: 'campDate', direction: 'asc' }],
+                    sort: [{ field: 'campRef', direction: 'asc' }],
                     filterByFormula:
                         'AND(spaceAvailable > 0, status = "current")',
                 })
