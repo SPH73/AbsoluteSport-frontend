@@ -1,40 +1,41 @@
 <template>
-    <div class="card" @click="selectParty(id)">
-        <h3>{{ partyName }}</h3>
-        <template v-for="(el, index) in thumbnails" :key="index">
-            <img :src="el.url" :alt="el.filename" class="click" />
-        </template>
-    </div>
+  <div class="card" @click="selectParty(id)">
+    <h3>{{ partyName }}</h3>
+    <template v-for="(el, index) in thumbnails" :key="index">
+      <img :src="el.url" :alt="el.filename" class="click" />
+    </template>
+  </div>
 </template>
 
-<script>
-import { inject } from '@vue/runtime-core';
-export default {
-    name: 'PartyElement',
-    props: ['id', 'partyName', 'summary', 'thumbnails', 'linkedViewID', 'slug'],
-    emits: ['select-party'],
+<script setup>
+import { inject } from "@vue/runtime-core";
 
-    setup() {
-        const selectParty = inject('selectParty');
-        const activeParty = inject('activeParty');
+const props = defineProps([
+  "id",
+  "partyName",
+  "summary",
+  "thumbnails",
+  "linkedViewID",
+  "slug",
+]);
+const emit = defineEmits(["select-party"]);
 
-        return { selectParty, activeParty };
-    },
-};
+const selectParty = inject("selectParty");
+const activeParty = inject("activeParty");
 </script>
 
 <style>
 div.btn-group {
-    display: flex;
-    justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
 }
 div.btn-group > * {
-    flex: 1 1 auto;
+  flex: 1 1 auto;
 }
 
 .card img {
-    width: 100%;
-    border: 0.6rem solid white;
-    border-radius: 0.4rem;
+  width: 100%;
+  border: 0.6rem solid white;
+  border-radius: 0.4rem;
 }
 </style>
