@@ -70,7 +70,6 @@ nav {
     line-height: 2;
 }
 nav .menu-item ~ a {
-    /* margin-block-end: 2rem; */
     font-size: 1.2rem;
     color: var(--color-secondary);
     text-transform: uppercase;

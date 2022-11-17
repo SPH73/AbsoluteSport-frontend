@@ -1,21 +1,12 @@
 <template>
-    <section>
-        <h2 v-if="!activeParty">Choose Your Party</h2>
-        <party-grid></party-grid>
-    </section>
+  <section>
+    <h2 v-if="!activeParty">Choose Your Party</h2>
+    <party-grid></party-grid>
+  </section>
 </template>
 
-<script>
-import { inject } from '@vue/runtime-core';
-import PartyGrid from './PartyGrid.vue';
-export default {
-    name: 'PartyBase',
-    components: { PartyGrid },
+<script setup>
+import { inject } from "@vue/runtime-core";
 
-    setup() {
-        const activeParty = inject('activeParty');
-
-        return { activeParty };
-    },
-};
+const activeParty = inject("activeParty");
 </script>
