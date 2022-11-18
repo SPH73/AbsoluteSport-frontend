@@ -5,43 +5,36 @@
         <base-card>
           <div class="button-container">
             <div class="btn-group">
-              <base-button
-                v-show="selectedTab === 'CampForm'"
-                @click="selectedTab = 'CampBookingDetails'"
-                >View Booking Details <span>&nbsp;⟼</span>
+              <base-button v-show="selectedTab === 'CampForm'"
+                           @click="selectedTab = 'CampBookingDetails'">View
+                Booking Details <span>&nbsp;⟼</span>
               </base-button>
-              <base-button
-                v-show="selectedTab === 'CampBookingDetails'"
-                @click="selectedTab = 'CampForm'"
-              >
-                <span>⟻&nbsp;</span> Back To Booking Form</base-button
-              >
+              <base-button v-show="selectedTab === 'CampBookingDetails'"
+                           @click="selectedTab = 'CampForm'">
+                <span>⟻&nbsp;</span> Back To Booking Form
+              </base-button>
             </div>
           </div>
           <keep-alive>
-            <camp-form
-              v-if="selectedTab === 'CampForm'"
-              @parent-submitted="handleSaveParent"
-              @camp-booking-added="handleAddCampBookingItem"
-              @show-steps="selectedTab = 'CampBookingDetails'"
-              :error="error"
-              :camps-list="campsList"
-              :parent-added="parentAdded"
-            ></camp-form>
+            <camp-form v-if="selectedTab === 'CampForm'"
+                       @parent-submitted="handleSaveParent"
+                       @camp-booking-added="handleAddCampBookingItem"
+                       @show-steps="selectedTab = 'CampBookingDetails'"
+                       :error="error" :camps-list="campsList"
+                       :parent-added="parentAdded"></camp-form>
           </keep-alive>
           <keep-alive>
-            <camp-booking-details
-              v-if="selectedTab === 'CampBookingDetails'"
-              :parent-added="parentAdded"
-              :saved-parent="savedParent"
-              :camp-booking="campBooking"
-              :parent-name="enteredParentName"
-              :main-contact="enteredMainContact"
-              :email="enteredEmail"
-              @handleRemoveBookingItem="removeItem"
-              @handleCancelBooking="cancelBooking"
-              @handleConfirmBooking="confirmBooking"
-            ></camp-booking-details>
+            <camp-booking-details v-if="selectedTab === 'CampBookingDetails'"
+                                  :parent-added="parentAdded"
+                                  :saved-parent="savedParent"
+                                  :camp-booking="campBooking"
+                                  :parent-name="enteredParentName"
+                                  :main-contact="enteredMainContact"
+                                  :email="enteredEmail"
+                                  @handleRemoveBookingItem="removeItem"
+                                  @handleCancelBooking="cancelBooking"
+                                  @handleConfirmBooking="confirmBooking">
+            </camp-booking-details>
           </keep-alive>
         </base-card>
       </div>
@@ -50,10 +43,6 @@
 </template>
 
 <script setup>
-const Airtable = require("airtable");
-const base = new Airtable({ apiKey: process.env.VUE_APP_AT_API_KEY }).base(
-  process.env.VUE_APP_BASE_ID
-);
 import CampBookingDetails from "./CampBookingDetails.vue";
 import CampForm from "./CampForm.vue";
 import { ref } from "@vue/reactivity";
@@ -62,6 +51,10 @@ import getCamps from "../../composables/getCamps";
 import { computed, watch } from "@vue/runtime-core";
 import BaseCard from "../UI/BaseCard.vue";
 
+const Airtable = require("airtable");
+const base = new Airtable({ apiKey: process.env.VUE_APP_AT_API_KEY }).base(
+  process.env.VUE_APP_BASE_ID
+);
 const selectedTab = ref("CampForm");
 const setSelectedTab = (tab) => {
   selectedTab.value = tab;
@@ -172,6 +165,7 @@ const totalCost = computed(() => {
 const { campsList, error, loadCamps } = getCamps();
 
 loadCamps();
+
 // ****No longer need computed value for form but possibly needed if getting all camps to list in view and then change in composable and send to form as current camps not camps-list.
 // const currentCamps = computed(() => {
 //     return campsList.value.filter(camp => camp.status === 'current');
@@ -236,16 +230,20 @@ const cancelBooking = () => {
 p {
   color: var(--color-light);
 }
+
 .button-container {
   padding-inline: 1rem;
 }
+
 .btn-group {
   display: flex;
   justify-content: space-between;
 }
-.btn-group > * {
+
+.btn-group>* {
   flex: 1 1 auto;
 }
+
 /* .btn-group > * + * {
     margin-left: 0.8rem;
 } */

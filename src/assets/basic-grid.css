@@ -1,0 +1,8 @@
+.basic-grid {
+    display: grid;
+    gap: 1.5rem;
+    /* Choose this if you want to maintain the size and create additional columns that fill the space when it becomes available */
+    /* grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); */
+    /* Choose this if you want the columns to fill the space */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}

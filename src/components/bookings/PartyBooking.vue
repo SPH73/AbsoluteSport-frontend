@@ -5,106 +5,70 @@
         <div class="container">
           <h1 class="text-accent">Party Booking Enquiry</h1>
           <p class="text-light">
-            We cover West Sussex and Hampshire, however we may also be able to accomodate
+            We cover West Sussex and Hampshire, however we may also be able to
+            accomodate
             parties beyond with an additional travel charge.
           </p>
           <p class="text-light">
-            We recommend at least 2 weeks advance booking to secure your preferred date
-            and time. If you have an urgent request please get in touch and we&#39;ll do
-            our best to grant your wish. You can also read our FAQ&#39;s for more info.
+            We recommend at least 2 weeks advance booking to secure your
+            preferred date
+            and time. If you have an urgent request please get in touch and
+            we&#39;ll do
+            our best to grant your wish. You can also read our FAQ&#39;s for
+            more info.
           </p>
         </div>
         <div class="container">
           <form @submit.prevent="handleSubmit">
             <h3 class="text-light">Parent/Guardian Details</h3>
             <div class="grid-inputs">
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !enteredParentFirstName.isValid,
-                }"
-              >
+              <div class="form-control" :class="{
+                invalid: !enteredParentFirstName.isValid,
+              }">
                 <label for="firstName">First Name*</label>
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !enteredParentFirstName.isValid,
-                }"
-              >
-                <input
-                  name="firstName"
-                  id="firstName"
-                  type="text"
-                  v-model.trim.lazy="enteredParentFirstName.val"
-                  autocomplete="given-name"
-                />
+              <div class="form-control" :class="{
+                invalid: !enteredParentFirstName.isValid,
+              }">
+                <input name="firstName" id="firstName" type="text"
+                       v-model.trim.lazy="enteredParentFirstName.val"
+                       autocomplete="given-name" />
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !enteredSurname.isValid,
-                }"
-              >
+              <div class="form-control" :class="{
+                invalid: !enteredSurname.isValid,
+              }">
                 <label for="surname">Surname*</label>
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !enteredSurname.isValid,
-                }"
-              >
-                <input
-                  name="surname"
-                  id="surname"
-                  type="text"
-                  v-model.trim.lazy="enteredSurname.val"
-                  autocomplete="family-name"
-                />
+              <div class="form-control" :class="{
+                invalid: !enteredSurname.isValid,
+              }">
+                <input name="surname" id="surname" type="text"
+                       v-model.trim.lazy="enteredSurname.val"
+                       autocomplete="family-name" />
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !enteredEmail.isValid,
-                }"
-              >
+              <div class="form-control" :class="{
+                invalid: !enteredEmail.isValid,
+              }">
                 <label for="email">Email Address*</label>
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !enteredEmail.isValid,
-                }"
-              >
-                <input
-                  name="email"
-                  id="email"
-                  type="email"
-                  v-model.trim.lazy="enteredEmail.val"
-                  autocomplete="email"
-                />
+              <div class="form-control" :class="{
+                invalid: !enteredEmail.isValid,
+              }">
+                <input name="email" id="email" type="email"
+                       v-model.trim.lazy="enteredEmail.val"
+                       autocomplete="email" />
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !enteredPhone.isValid,
-                }"
-              >
+              <div class="form-control" :class="{
+                invalid: !enteredPhone.isValid,
+              }">
                 <label for="mainContact">Main Phone No.*</label>
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !enteredPhone.isValid,
-                }"
-              >
-                <input
-                  name="mainContact"
-                  id="mainContact"
-                  type="tel"
-                  v-model.trim.lazy="enteredPhone.val"
-                  autocomplete="tel"
-                />
+              <div class="form-control" :class="{
+                invalid: !enteredPhone.isValid,
+              }">
+                <input name="mainContact" id="mainContact" type="tel"
+                       v-model.trim.lazy="enteredPhone.val"
+                       autocomplete="tel" />
               </div>
             </div>
             <h3 class="text-light">Child Details</h3>
@@ -113,59 +77,35 @@
                 <label for="childName">Name (Or School Name)</label>
               </div>
               <div class="form-control">
-                <input
-                  name="childName"
-                  id="childName"
-                  type="text"
-                  v-model.trim.lazy="enteredChildName"
-                  autocomplete="off"
-                />
+                <input name="childName" id="childName" type="text"
+                       v-model.trim.lazy="enteredChildName"
+                       autocomplete="off" />
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !enteredChildAge.isValid,
-                }"
-              >
+              <div class="form-control" :class="{
+                invalid: !enteredChildAge.isValid,
+              }">
                 <label for="childAge">Age*</label>
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !enteredChildAge.isValid,
-                }"
-              >
-                <input
-                  name="childAge"
-                  id="childAge"
-                  type="number"
-                  v-model.number="enteredChildAge.val"
-                  min="5"
-                  max="14"
-                />
+              <div class="form-control" :class="{
+                invalid: !enteredChildAge.isValid,
+              }">
+                <input name="childAge" id="childAge" type="number"
+                       v-model.number="enteredChildAge.val" min="5" max="14" />
               </div>
               <div class="form-control">
                 <label for="childBDay">Actual Birthday</label>
               </div>
               <div class="form-control">
-                <input
-                  name="childBDay"
-                  id="childBDay"
-                  type="date"
-                  v-model="enteredChildBDay"
-                />
+                <input name="childBDay" id="childBDay" type="date"
+                       v-model="enteredChildBDay" />
               </div>
               <div class="form-control">
                 <label for="info">Additional Info</label>
               </div>
               <div class="form-control">
-                <textarea
-                  rows="5"
-                  v-model.trim="enteredInfo"
-                  name="info"
-                  id="info"
-                  placeholder="Is there anything else you would like us to know?"
-                ></textarea>
+                <textarea rows="5" v-model.trim="enteredInfo" name="info"
+                          id="info"
+                          placeholder="Is there anything else you would like us to know?"></textarea>
               </div>
             </div>
             <h3 class="text-light">Event Details</h3>
@@ -174,27 +114,19 @@
             </div>
             <div v-if="partyList.length">
               <div class="grid-inputs">
-                <div
-                  class="form-control"
-                  :class="{
-                    invalid: !selectedParty.isValid,
-                  }"
-                >
+                <div class="form-control" :class="{
+                  invalid: !selectedParty.isValid,
+                }">
                   <label for="partyName">Select Your Party*</label>
                 </div>
-                <div
-                  class="form-control"
-                  :class="{
-                    invalid: !selectedParty.isValid,
-                  }"
-                >
-                  <select name="partyName" id="partyName" v-model="selectedParty.val">
+                <div class="form-control" :class="{
+                  invalid: !selectedParty.isValid,
+                }">
+                  <select name="partyName" id="partyName"
+                          v-model="selectedParty.val">
                     <option disabled value="select">Choose...</option>
-                    <option
-                      v-for="option in partyList"
-                      :key="option.id"
-                      :value="option.partyName"
-                    >
+                    <option v-for="option in partyList" :key="option.id"
+                            :value="option.partyName">
                       {{ option.partyName }}
                     </option>
                   </select>
@@ -205,145 +137,86 @@
               <p>Loading parties...</p>
             </div>
             <div class="grid-inputs">
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !chosenDate1.isValid,
-                }"
-              >
+              <div class="form-control" :class="{
+                invalid: !chosenDate1.isValid,
+              }">
                 <label for="partyDate1">Party Date 1st Choice*</label>
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !chosenDate1.isValid,
-                }"
-              >
-                <input
-                  name="partyDate1"
-                  id="partyDate1"
-                  type="date"
-                  v-model="chosenDate1.val"
-                />
+              <div class="form-control" :class="{
+                invalid: !chosenDate1.isValid,
+              }">
+                <input name="partyDate1" id="partyDate1" type="date"
+                       v-model="chosenDate1.val" />
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !chosenDate2.isValid,
-                }"
-              >
+              <div class="form-control" :class="{
+                invalid: !chosenDate2.isValid,
+              }">
                 <label for="partyDate2">Party Date 2nd Choice*</label>
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !chosenDate2.isValid,
-                }"
-              >
-                <input
-                  name="partyDate2"
-                  id="partyDate2"
-                  type="date"
-                  v-model="chosenDate2.val"
-                />
+              <div class="form-control" :class="{
+                invalid: !chosenDate2.isValid,
+              }">
+                <input name="partyDate2" id="partyDate2" type="date"
+                       v-model="chosenDate2.val" />
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !chosenTime.isValid,
-                }"
-              >
+              <div class="form-control" :class="{
+                invalid: !chosenTime.isValid,
+              }">
                 <label for="partyStart">Party Start Time*</label>
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !chosenTime.isValid,
-                }"
-              >
+              <div class="form-control" :class="{
+                invalid: !chosenTime.isValid,
+              }">
                 <input type="time" v-model="chosenTime.val" />
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !chosenPartyLength.isValid,
-                }"
-              >
+              <div class="form-control" :class="{
+                invalid: !chosenPartyLength.isValid,
+              }">
                 <label for="partyLength">Party Length (hr)*</label>
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !chosenPartyLength.isValid,
-                }"
-              >
-                <input
-                  type="number"
-                  step="0.5"
-                  min="1"
-                  max="3"
-                  name="partyLength"
-                  id="partyLength"
-                  v-model="chosenPartyLength.val"
-                />
+              <div class="form-control" :class="{
+                invalid: !chosenPartyLength.isValid,
+              }">
+                <input type="number" step="0.5" min="1" max="3"
+                       name="partyLength" id="partyLength"
+                       v-model="chosenPartyLength.val" />
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !numChild.isValid,
-                }"
-              >
+              <div class="form-control" :class="{
+                invalid: !numChild.isValid,
+              }">
                 <label for="numChild">Number of Children Attending*</label>
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !numChild.isValid,
-                }"
-              >
-                <input
-                  type="number"
-                  min="1"
-                  step="1"
-                  v-model.number="numChild.val"
-                  name="numChild"
-                  id="numChild"
-                />
+              <div class="form-control" :class="{
+                invalid: !numChild.isValid,
+              }">
+                <input type="number" min="1" step="1"
+                       v-model.number="numChild.val" name="numChild"
+                       id="numChild" />
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !enteredPostCode.isValid,
-                }"
-              >
+              <div class="form-control" :class="{
+                invalid: !enteredPostCode.isValid,
+              }">
                 <label for="postCode">Post Code (venue or house)*</label>
               </div>
-              <div
-                class="form-control"
-                :class="{
-                  invalid: !enteredPostCode.isValid,
-                }"
-              >
-                <input
-                  type="text"
-                  v-model="enteredPostCode.val"
-                  name="postCode"
-                  id="postCode"
-                  autocomplete="postal-code"
-                />
+              <div class="form-control" :class="{
+                invalid: !enteredPostCode.isValid,
+              }">
+                <input type="text" v-model="enteredPostCode.val" name="postCode"
+                       id="postCode" autocomplete="postal-code" />
               </div>
             </div>
 
-            <div class="form-control">
+            <!-- <div class="form-control">
               <vue-friendly-captcha :sitekey="sitekey" />
-            </div>
+            </div> -->
 
             <div class="form-control">
               <base-button class="primary">Please Send Me A Quote!</base-button>
             </div>
 
             <p class="error" v-if="!formIsValid">
-              One or more fields are invalid. Please correct the errors and submit again.
+              One or more fields are invalid. Please correct the errors and
+              submit again.
             </p>
           </form>
         </div>
@@ -353,6 +226,10 @@
 </template>
 
 <script setup>
+import { ref } from "@vue/reactivity";
+import getParties from "../../composables/getParties";
+
+import VueFriendlyCaptcha from "@somushq/vue3-friendly-captcha";
 const Airtable = require("airtable");
 const base = new Airtable({ apiKey: process.env.VUE_APP_AT_API_KEY }).base(
   process.env.VUE_APP_BASE_ID
@@ -360,10 +237,6 @@ const base = new Airtable({ apiKey: process.env.VUE_APP_AT_API_KEY }).base(
 const verifyUrl = process.env.VUE_APP_FRIENDLY_RECAPTCHA_VERIFY_URL;
 const sitekey = process.env.VUE_APP_FRIENDLY_RECAPTCHA_SITEKEY;
 const apikey = process.env.VUE_APP_FRIENDLY_RECAPTCHA_APIKEY;
-import { ref } from "@vue/reactivity";
-import getParties from "../../composables/getParties";
-
-import VueFriendlyCaptcha from "@somushq/vue3-friendly-captcha";
 
 const partyData = ref({});
 const enteredParentFirstName = ref({ val: "", isValid: true });
@@ -383,43 +256,43 @@ const enteredChildBDay = ref(null);
 const numChild = ref({ val: null, isValid: true });
 const quoteRef = ref("");
 const formIsValid = ref(true);
-const solution = ref("");
+// const solution = ref("");
 
 const { partyList, error, load } = getParties();
 
 load();
 
-const handleCaptchaSolved = (solution) => {
-  solution.value = solution;
-};
+// const handleCaptchaSolved = (solution) => {
+//   solution.value = solution;
+// };
 
-const verifyRecaptcha = async () => {
-  console.log("Verify URL", verifyUrl);
-  const data = {
-    solution: document.querySelector(".frc-captcha-solution").value,
-    secret: apikey,
-    sitekey: sitekey,
-  };
-  console.log(data.solution);
-  try {
-    const response = await fetch(verifyUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
+// const verifyRecaptcha = async () => {
+//   console.log("Verify URL", verifyUrl);
+//   const data = {
+//     solution: document.querySelector(".frc-captcha-solution").value,
+//     secret: apikey,
+//     sitekey: sitekey,
+//   };
+//   console.log(data.solution);
+//   try {
+//     const response = await fetch(verifyUrl, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify(data),
+//     });
 
-    console.log("data", data);
-    console.log("Response", response);
-    if (!response.ok) {
-      alert("Verifcation failed");
-      formIsValid = false;
-      return;
-    }
-  } catch (error) {
-    console.error("Error: ", error);
-    formIsValid.value = false;
-  }
-};
+//     console.log("data", data);
+//     console.log("Response", response);
+//     if (!response.ok) {
+//       alert("Verifcation failed");
+//       formIsValid = false;
+//       return;
+//     }
+//   } catch (error) {
+//     console.error("Error: ", error);
+//     formIsValid.value = false;
+//   }
+// };
 
 const validateForm = () => {
   formIsValid.value = true;
@@ -477,11 +350,11 @@ const handleSubmit = () => {
   if (!formIsValid.value) {
     return;
   }
-  verifyRecaptcha();
-  if (!formIsValid.value) {
-    alert("recaptcha failed");
-    return;
-  }
+  // verifyRecaptcha();
+  // if (!formIsValid.value) {
+  //   alert("recaptcha failed");
+  //   return;
+  // }
   partyData.value = {
     firstName: enteredParentFirstName.value.val,
     surname: enteredSurname.value.val,
@@ -500,7 +373,7 @@ const handleSubmit = () => {
     numChildren: numChild.value.val,
     status: "new",
     enquiryType: "party",
-    recaptcha: document.querySelector(".frc-captcha-solution").value,
+    // recaptcha: document.querySelector(".frc-captcha-solution").value,
   };
   const table = base("enquiries");
   const createEnquiryRecord = async (fields) => {
@@ -527,6 +400,7 @@ const handleSubmit = () => {
   color: var(--color-light);
   font-size: small;
 }
+
 .invalid label {
   color: var(--color-primary);
 }
@@ -536,6 +410,7 @@ const handleSubmit = () => {
 .invalid select {
   border: 1px solid var(--color-primary);
 }
+
 @media screen and (max-width: 568px) {
   .grid-inputs {
     display: grid;
@@ -550,6 +425,7 @@ const handleSubmit = () => {
     align-items: center;
   }
 }
+
 .frc-captcha * {
   margin: 0;
   padding: 0;
