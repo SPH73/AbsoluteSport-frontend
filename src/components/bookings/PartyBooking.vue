@@ -229,14 +229,12 @@
 import { ref } from "@vue/reactivity";
 import getParties from "../../composables/getParties";
 
-import VueFriendlyCaptcha from "@somushq/vue3-friendly-captcha";
+
 const Airtable = require("airtable");
 const base = new Airtable({ apiKey: process.env.VUE_APP_AT_API_KEY }).base(
   process.env.VUE_APP_BASE_ID
 );
-const verifyUrl = process.env.VUE_APP_FRIENDLY_RECAPTCHA_VERIFY_URL;
-const sitekey = process.env.VUE_APP_FRIENDLY_RECAPTCHA_SITEKEY;
-const apikey = process.env.VUE_APP_FRIENDLY_RECAPTCHA_APIKEY;
+
 
 const partyData = ref({});
 const enteredParentFirstName = ref({ val: "", isValid: true });
@@ -256,43 +254,11 @@ const enteredChildBDay = ref(null);
 const numChild = ref({ val: null, isValid: true });
 const quoteRef = ref("");
 const formIsValid = ref(true);
-// const solution = ref("");
+
 
 const { partyList, error, load } = getParties();
 
 load();
-
-// const handleCaptchaSolved = (solution) => {
-//   solution.value = solution;
-// };
-
-// const verifyRecaptcha = async () => {
-//   console.log("Verify URL", verifyUrl);
-//   const data = {
-//     solution: document.querySelector(".frc-captcha-solution").value,
-//     secret: apikey,
-//     sitekey: sitekey,
-//   };
-//   console.log(data.solution);
-//   try {
-//     const response = await fetch(verifyUrl, {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify(data),
-//     });
-
-//     console.log("data", data);
-//     console.log("Response", response);
-//     if (!response.ok) {
-//       alert("Verifcation failed");
-//       formIsValid = false;
-//       return;
-//     }
-//   } catch (error) {
-//     console.error("Error: ", error);
-//     formIsValid.value = false;
-//   }
-// };
 
 const validateForm = () => {
   formIsValid.value = true;
@@ -350,11 +316,6 @@ const handleSubmit = () => {
   if (!formIsValid.value) {
     return;
   }
-  // verifyRecaptcha();
-  // if (!formIsValid.value) {
-  //   alert("recaptcha failed");
-  //   return;
-  // }
   partyData.value = {
     firstName: enteredParentFirstName.value.val,
     surname: enteredSurname.value.val,
@@ -373,7 +334,6 @@ const handleSubmit = () => {
     numChildren: numChild.value.val,
     status: "new",
     enquiryType: "party",
-    // recaptcha: document.querySelector(".frc-captcha-solution").value,
   };
   const table = base("enquiries");
   const createEnquiryRecord = async (fields) => {
