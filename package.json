@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@somushq/vue3-friendly-captcha": "^1.0.2",
-    "airtable": "^0.11.3",
+    "airtable": "^0.11.6",
     "autoprefixer": "^10",
     "core-js": "^3.23.3",
     "dotenv": "^16.0.0",
