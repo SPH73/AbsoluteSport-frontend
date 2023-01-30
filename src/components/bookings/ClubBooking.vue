@@ -1,3 +1,143 @@
+<script setup>
+import { ref } from "@vue/reactivity";
+import { computed, watchEffect, watch } from "@vue/runtime-core";
+import getClubs from "../../composables/getClubList";
+import getSchoolList from "../../composables/getSchoolList";
+const Airtable = require("airtable");
+const base = new Airtable({ apiKey: process.env.VUE_APP_AT_API_KEY }).base(
+  process.env.VUE_APP_BASE_ID
+);
+
+const enteredChildFirstName = ref({ val: "", isValid: true });
+const enteredSurname = ref({ val: "", isValid: true });
+const enteredMedical = ref({ val: "", isValid: true });
+const enteredYearGroup = ref({ val: "select", isValid: true });
+const selectedSchool = ref({ val: "select", isValid: true });
+const filteredClubs = ref([]);
+const schoolClubs = ref([]);
+const checkedClubs = ref({ val: [], isValid: true });
+const enteredParentName = ref({ val: "", isValid: true });
+const enteredEmail = ref({ val: "", isValid: true });
+const enteredPhone = ref({ val: "", isValid: true });
+const enteredAltParentName = ref("");
+const enteredAltContact = ref("");
+const acceptedTerms = ref({ val: false, isValid: true });
+const bookingRef = ref("");
+const paymentRef = ref("");
+const clubBooking = ref({});
+const formIsValid = ref(true);
+
+const { clubList, clubError, loadClubs } = getClubs();
+const { schoolList, schoolError, loadSchools } = getSchoolList();
+loadClubs();
+loadSchools();
+
+console.log("ClubList", clubList.value);
+console.log("SchoolList", schoolList.value);
+
+watch(selectedSchool, () => {
+  return (schoolClubs.value = clubList.value.filter(
+    (club) => club.schoolRef === selectedSchool.value.val
+  ));
+});
+
+// console.log("SchoolClubs", schoolClubs.value);
+
+// const filteredSchoolClubs = computed(() => {
+//   let result;
+//   let yearGroup = enteredYearGroup.value.val.toString();
+//   let school = selectedSchool.value.val;
+//   filteredClubs.value = clubList.value.filter((el) => {
+//     return el.yearRange.includes(yearGroup) && el.schoolRef === school;
+//   });
+//   console.log("filteredClubs", filteredClubs.value);
+// });
+
+const filteredSchoolClubs = computed(() => {
+  let yearGroup = enteredYearGroup.value.val.toString();
+  let school = selectedSchool.value.val;
+  filteredClubs.value = clubList.value.filter((el) => {
+    return el.yearRange.includes(yearGroup) && el.schoolRef === school;
+  });
+});
+
+watchEffect(() => {
+  console.log("selected year", enteredYearGroup.value.val.toString());
+  console.log("Selected school", selectedSchool.value.val);
+  console.log("Filtered school clubs", filteredSchoolClubs.value);
+  console.log("Filtered clubs", filteredClubs.value);
+});
+
+const createBookingRef = () => {
+  bookingRef.value = Date.now().toString(24);
+};
+
+const createPaymentRef = () => {
+  paymentRef.value = Date.now().toString(36);
+};
+
+const validateForm = () => {
+  if (enteredParentName.value.val === "") {
+    enteredParentName.value.isValid = false;
+    formIsValid.value = false;
+  }
+  if (enteredSurname.value.val === "") {
+    enteredSurname.value.isValid = false;
+    formIsValid.value = false;
+  }
+  if (enteredPhone.value.val === "") {
+    enteredPhone.value.isValid = false;
+    formIsValid.value = false;
+  }
+  if (enteredMedical.value.val === "") {
+    enteredMedical.value.isValid = false;
+    formIsValid.value = false;
+  }
+  if (enteredYearGroup.value.val === "select") {
+    enteredYearGroup.value.isValid = false;
+    formIsValid.value = false;
+  }
+  if (selectedSchool.value.val === "select") {
+    selectedSchool.value.isValid = false;
+    formIsValid.value = false;
+  }
+  if (checkedClubs.value.val.length === 0) {
+    checkedClubs.value.isValid = false;
+    formIsValid.value = false;
+  }
+  if (!acceptedTerms) {
+    checkedClubs.value.isValid = false;
+    formIsValid.value = false;
+  }
+};
+const handleSubmitClubBooking = () => {
+  validateForm();
+  if (!formIsValid.value) {
+    return;
+  }
+  createPaymentRef();
+
+  for (let club in checkedClubs.value) {
+    createBookingRef();
+    clubBooking.value = {
+      club: club,
+      paymentRef: paymentRef.value,
+      bookingRef: bookingRef.value,
+      Surname: enteredSurname.value.val,
+      childName: enteredChildFirstName.value.val,
+      parentName: enteredParentName.value.val,
+      contactNumber: enteredPhone.value.val,
+      email: enteredEmail.value.val,
+      altParentName: enteredAltParentName.value.val,
+      altParentContact: enteredAltContact.value.val,
+      medicalConds: enteredMedical.value.val,
+      yearGroup: enteredYearGroup.value.val,
+      school: selectedSchool.value.val,
+    };
+    console.log("club booked", clubBooking.value);
+  }
+};
+</script>
 <template>
   <section class="section club">
     <div class="container">
@@ -31,7 +171,7 @@
             </p>
           </div>
           <div class="container">
-            <form @submit.prevent="handleSmubit">
+            <form @submit.prevent="handleSubmitClubBooking">
               <div class="grid-inputs">
                 <div class="form-control">
                   <label class="pName">Parent Name</label>
@@ -162,10 +302,10 @@
               <div v-if="clubError" class="form-control error">
                 <p>{{ clubError }} for clubs. Please contact us to book.</p>
               </div>
-              <div v-if="schoolClubs.length">
+              <div v-if="filteredClubs.length">
                 <div
                   class="inline-checkbox-control"
-                  v-for="club in schoolClubs"
+                  v-for="club in filteredClubs"
                   :key="club.id"
                 >
                   <div>
@@ -211,135 +351,6 @@
     </div>
   </section>
 </template>
-
-<script setup>
-const Airtable = require("airtable");
-const base = new Airtable({ apiKey: process.env.VUE_APP_AT_API_KEY }).base(
-  process.env.VUE_APP_BASE_ID
-);
-import { ref } from "@vue/reactivity";
-import { computed, watchEffect } from "@vue/runtime-core";
-import getClubs from "../../composables/getClubList";
-import getSchoolList from "../../composables/getSchoolList";
-
-const enteredChildFirstName = ref({ val: "", isValid: true });
-const enteredSurname = ref({ val: "", isValid: true });
-const enteredMedical = ref({ val: "", isValid: true });
-const enteredYearGroup = ref({ val: "select", isValid: true });
-const selectedSchool = ref({ val: "select", isValid: true });
-const filteredClubs = ref([]);
-const checkedClubs = ref({ val: [], isValid: true });
-const enteredParentName = ref({ val: "", isValid: true });
-const enteredEmail = ref({ val: "", isValid: true });
-const enteredPhone = ref({ val: "", isValid: true });
-const enteredAltParentName = ref("");
-const enteredAltContact = ref("");
-const acceptedTerms = ref({ val: false, isValid: true });
-const bookingRef = ref("");
-const paymentRef = ref("");
-const clubBooking = ref({});
-const formIsValid = ref(true);
-
-const { clubList, clubError, loadClubs } = getClubs();
-const { schoolList, schoolError, loadSchools } = getSchoolList();
-
-loadClubs();
-
-loadSchools();
-console.log("ClubList", clubList.value);
-
-const schoolClubs = computed(() => {
-  return filteredClubs.value.filter((el) => {
-    return el.schoolRef === selectedSchool.value.val;
-  });
-});
-
-const filteredSchoolClubs = computed(() => {
-  let result;
-  let yearGroup = enteredYearGroup.value.val.toString();
-  result = clubList.value.some((x) => {
-    return x.yearRange.includes(yearGroup);
-  });
-  console.log("result", result);
-  filteredClubs.value.push(result);
-  console.log("filteredClubs", filteredClubs.value);
-  return filteredClubs.value;
-});
-
-watchEffect(() => {
-  console.log("selected year", enteredYearGroup.value.val.toString());
-  console.log("Selected school", selectedSchool.value.val);
-});
-
-const createBookingRef = () => {
-  bookingRef.value = Date.now().toString(24);
-};
-
-const createPaymentRef = () => {
-  paymentRef.value = Date.now().toString(36);
-};
-
-const validateForm = () => {
-  if (enteredParentName.value.val === "") {
-    enteredParentName.value.isValid = false;
-    formIsValid.value = false;
-  }
-  if (enteredSurname.value.val === "") {
-    enteredSurname.value.isValid = false;
-    formIsValid.value = false;
-  }
-  if (enteredPhone.value.val === "") {
-    enteredPhone.value.isValid = false;
-    formIsValid.value = false;
-  }
-  if (enteredMedical.value.val === "") {
-    enteredMedical.value.isValid = false;
-    formIsValid.value = false;
-  }
-  if (enteredYearGroup.value.val === "select") {
-    enteredYearGroup.value.isValid = false;
-    formIsValid.value = false;
-  }
-  if (selectedSchool.value.val === "select") {
-    selectedSchool.value.isValid = false;
-    formIsValid.value = false;
-  }
-  if (checkedClubs.value.val.length === 0) {
-    checkedClubs.value.isValid = false;
-    formIsValid.value = false;
-  }
-  if (!acceptedTerms) {
-    checkedClubs.value.isValid = false;
-    formIsValid.value = false;
-  }
-};
-const handleSmubit = () => {
-  if (!formIsValid.value) {
-    return;
-  }
-  createPaymentRef();
-
-  for (let club in checkedClubs.value) {
-    createBookingRef();
-    clubBooking.value = {
-      club: club,
-      paymentRef: paymentRef.value,
-      bookingRef: bookingRef.value,
-      Surname: enteredSurname.value.val,
-      childName: enteredChildFirstName.value.val,
-      parentName: enteredParentName.value.val,
-      contactNumber: enteredPhone.value.val,
-      email: enteredEmail.value.val,
-      altParentName: enteredAltParentName.value.val,
-      altParentContact: enteredAltContact.value.val,
-      medicalConds: enteredMedical.value.val,
-      yearGroup: enteredYearGroup.value.val,
-      school: selectedSchool.value.val,
-    };
-    console.log("club booked", clubBooking.value);
-  }
-};
-</script>
 
 <style scoped>
 p {
