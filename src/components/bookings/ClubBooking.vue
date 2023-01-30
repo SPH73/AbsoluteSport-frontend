@@ -41,18 +41,6 @@ watch(selectedSchool, () => {
   ));
 });
 
-// console.log("SchoolClubs", schoolClubs.value);
-
-// const filteredSchoolClubs = computed(() => {
-//   let result;
-//   let yearGroup = enteredYearGroup.value.val.toString();
-//   let school = selectedSchool.value.val;
-//   filteredClubs.value = clubList.value.filter((el) => {
-//     return el.yearRange.includes(yearGroup) && el.schoolRef === school;
-//   });
-//   console.log("filteredClubs", filteredClubs.value);
-// });
-
 const filteredSchoolClubs = computed(() => {
   let yearGroup = enteredYearGroup.value.val.toString();
   let school = selectedSchool.value.val;
@@ -143,7 +131,7 @@ const handleSubmitClubBooking = () => {
     <div class="container">
       <base-card>
         <div class="container">
-          <div id="club-form">
+          <div id="text">
             <h2 class="text-accent">School Clubs Booking Form</h2>
             <p>
               We currently run school clubs at Sidlesham Primary and West Witterings
@@ -309,10 +297,10 @@ const handleSubmitClubBooking = () => {
                   :key="club.id"
                 >
                   <div>
-                    <label>
+                    <!-- <label>
                       Year's:
                       <span v-for="year in club.yearRange" :key="year">{{ year }}, </span>
-                    </label>
+                    </label> -->
                   </div>
                   <label class="checkbox-label-control">{{ club.clubName }}</label>
                   <input
